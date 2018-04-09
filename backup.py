@@ -1,32 +1,29 @@
 import os
 import shutil
 
-# Replace this with your backup and data location
-BACKUP_DIR = os.path.expanduser('~/Dropbox/backup')
-DATA_DIR = os.path.expanduser('~/Desktop')
 
-# Maximum size of file to be backed up (in bytes)
-MAX_FILE_SIZE = 25 * 1024 * 1024
-
-
-def get_backup_path(path):
+def _get_backup_path(path):
     return path.replace(DATA_DIR, BACKUP_DIR)
 
 
-def get_data_path(path):
+def _get_data_path(path):
     return path.replace(BACKUP_DIR, DATA_DIR)
 
 
-if __name__ == '__main__':
-    # By default, this ignores hidden files and directories (beginning with .)
+def backup_files(from_path, to_path, max_size):
+    global DATA_DIR, BACKUP_DIR, MAX_FILE_SIZE
+    DATA_DIR = from_path
+    BACKUP_DIR = to_path
+    MAX_FILE_SIZE = max_size
 
+    # By default, this ignores hidden files and directories (beginning with .)
     skipped_files = []
     for (dirpath, dirnames, filenames) in os.walk(DATA_DIR):
         # If the current folder is hidden, ignore it
         if '.' in dirpath:
             pass
         else:
-            backup_path = get_backup_path(dirpath)
+            backup_path = _get_backup_path(dirpath)
             if not os.path.exists(backup_path):
                 os.mkdir(backup_path)
             for filename in filenames:
@@ -48,7 +45,7 @@ if __name__ == '__main__':
 
     # Remove deleted files
     for (dirpath, dirnames, filenames) in os.walk(BACKUP_DIR):
-        data_dir = get_data_path(dirpath)
+        data_dir = _get_data_path(dirpath)
         # If the folder has been removed, delete it from the backup
         if not os.path.exists(data_dir):
             print 'Removing folder', dirpath
@@ -67,3 +64,14 @@ if __name__ == '__main__':
     if skipped_files:
         with open('skipped.log', 'w') as f:
             f.writelines(skipped_files)
+
+
+if __name__ == '__main__':
+    # Replace this with your backup and data location
+    BACKUP_DIR = os.path.expanduser('~/Dropbox/backup')
+    DATA_DIR = os.path.expanduser('~/Desktop')
+
+    # Maximum size of file to be backed up (in bytes)
+    MAX_FILE_SIZE = 25 * 1024 * 1024
+
+    backup_files(DATA_DIR, BACKUP_DIR, MAX_FILE_SIZE)
