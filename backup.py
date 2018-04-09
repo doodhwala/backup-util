@@ -31,16 +31,20 @@ def backup_files(from_path, to_path, max_size):
             for filename in filenames:
                 source_path = os.sep.join([dirpath, filename])
                 dest_path = os.sep.join([backup_path, filename])
+                # rsync incrementally creates a backup
+                # which is a better option than copying entire files again
                 if os.path.getsize(source_path) <= MAX_FILE_SIZE:
                     if os.path.exists(dest_path):
                         # If a new version of the file is present, overwrite the old backup
                         if os.path.getmtime(source_path) > os.path.getmtime(dest_path):
                             print 'Updating backup of', source_path
-                            shutil.copyfile(source_path, dest_path)
+                            # shutil.copyfile(source_path, dest_path)
+                            os.system('rsync "{}" "{}"'.format(source_path, dest_path))
                     else:
                         # If the file does not exist, create a backup
                         print 'Creating backup of', source_path
-                        shutil.copyfile(source_path, dest_path)
+                        # shutil.copyfile(source_path, dest_path)
+                        os.system('rsync "{}" "{}"'.format(source_path, dest_path))
                 else:
                     skipped_files.append(source_path + '\n')
                     print 'File is too big - skipping', source_path
