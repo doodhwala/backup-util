@@ -1,5 +1,6 @@
 import os
 import shutil
+import datetime
 
 
 def _get_backup_path(path):
@@ -11,6 +12,7 @@ def _get_data_path(path):
 
 
 def backup_files(from_path, to_path, max_size):
+    print 'Creating backup at', datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S')
     global DATA_DIR, BACKUP_DIR, MAX_FILE_SIZE
     DATA_DIR = from_path
     BACKUP_DIR = to_path
@@ -64,6 +66,7 @@ def backup_files(from_path, to_path, max_size):
     if skipped_files:
         with open('skipped.log', 'w') as f:
             f.writelines(skipped_files)
+    print
 
 
 if __name__ == '__main__':
